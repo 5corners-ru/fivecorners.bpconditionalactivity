@@ -3,6 +3,7 @@ NEXT_SESSION.md
 
 # Local project config (Palych/portal settings — machine-specific)
 .project.json
+.palych.json
 
 # Claude Code local settings (machine-specific permissions)
 .claude/settings.local.json
