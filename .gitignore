@@ -1,3 +1,18 @@
+# Local Claude-session handoff (переписывается каждую сессию)
+NEXT_SESSION.md
+
+# Local project config (Palych/portal settings — machine-specific)
+.project.json
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json
+
+# Build artefacts (Marketplace) — оба регистра, на Linux/CI учитывается
+_Market/*.zip
+_Market/.last_version.zip
+_market/*.zip
+_market/.last_version.zip
+
 # OS
 .DS_Store
 Thumbs.db
@@ -5,9 +20,8 @@ Thumbs.db
 # IDE
 .idea/
 .vscode/
+*.iml
 *.swp
 
-# Bitrix cache
-/bitrix/cache/
-/bitrix/managed_cache/
-/bitrix/stack_cache/
+# Logs
+*.log

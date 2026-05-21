@@ -21,6 +21,7 @@ $arActivityDescription = (new ActivityDescription(
     ])
     ->setClass('RequestInfoDeclineConditional')
     ->setJsClass('RequestInformationOptionalActivity')
+    ->setIcon('/local/activities/requestinfodeclineconditional/icon.png')
     ->setReturn([
         'TaskId' => [
             'NAME' => 'ID',
