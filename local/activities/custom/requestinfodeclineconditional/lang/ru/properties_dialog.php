@@ -1,0 +1,25 @@
+<?php
+$MESS['BPSFA_PD_FIELDS']       = 'Поля';
+$MESS['BPSFA_PD_F_NAME']       = 'Код';
+$MESS['BPSFA_PD_F_TITLE']      = 'Название';
+$MESS['BPSFA_PD_F_TYPE']       = 'Тип';
+$MESS['BPSFA_PD_F_REQ']        = 'Обязательно';
+$MESS['BPSFA_PD_F_MULT']       = 'Множественное';
+$MESS['BPSFA_PD_F_ADD']        = 'Добавить поле';
+$MESS['BPSFA_PD_FIELD']        = 'Поле';
+$MESS['BPSFA_PD_F_DESCR']      = 'Описание';
+$MESS['BPSFA_PD_F_VLIST']      = 'Список значений';
+$MESS['BPSFA_PD_F_DEF']        = 'По умолчанию';
+$MESS['BPSFA_PD_SAVE']         = 'Сохранить';
+$MESS['BPSFA_PD_SAVE_HINT']    = 'Сохранить поле';
+$MESS['BPSFA_PD_CANCEL']       = 'Отмена';
+$MESS['BPSFA_PD_CANCEL_HINT']  = 'Отменить редактирование поля';
+$MESS['BPSFA_PD_YES']          = 'Да';
+$MESS['BPSFA_PD_NO']           = 'Нет';
+$MESS['BPSFA_PD_CHANGE']       = 'Изменить';
+$MESS['BPSFA_PD_DELETE']       = 'Удалить';
+$MESS['BPSFA_PD_EMPTY_TITLE']  = 'Введите название поля';
+$MESS['BPSFA_PD_EMPTY_NAME']   = 'Введите код поля';
+$MESS['BPSFA_PD_WRONG_NAME']   = 'Код поля должен начинаться с буквы и содержать только латинские буквы, цифры и знак подчёркивания';
+$MESS['BP_WF_UP']              = 'Вверх';
+$MESS['BP_WF_DOWN']            = 'Вниз';

@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Bitrix cache
+/bitrix/cache/
+/bitrix/managed_cache/
+/bitrix/stack_cache/
