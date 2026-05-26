@@ -223,6 +223,22 @@ class CBPRequestInfoDeclineConditional extends CBPRequestInformationOptionalActi
         $siteId = ''
     )
     {
+        // Fallback for older Bitrix24 that doesn't have PropertiesDialog API
+        if (!class_exists('Bitrix\Bizproc\Activity\PropertiesDialog'))
+        {
+            return static::getPropertiesDialogLegacy(
+                $documentType,
+                $activityName,
+                $arWorkflowTemplate,
+                $arWorkflowParameters,
+                $arWorkflowVariables,
+                $arCurrentValues,
+                $formName,
+                $popupWindow,
+                $siteId
+            );
+        }
+
         $documentService = CBPRuntime::getRuntime()->getDocumentService();
 
         $dialog = new Bizproc\Activity\PropertiesDialog(__FILE__, [
@@ -287,6 +303,77 @@ class CBPRequestInfoDeclineConditional extends CBPRequestInformationOptionalActi
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    // Legacy dialog for Bitrix24 without Bitrix\Bizproc\Activity\PropertiesDialog.
+    // Uses ob_start + include pattern. Standard activity fields (Subject, User, Timeout)
+    // are not rendered — only the RequestedInformation table with our DependOnField UI.
+    private static function getPropertiesDialogLegacy(
+        $documentType,
+        $activityName,
+        $arWorkflowTemplate,
+        $arWorkflowParameters,
+        $arWorkflowVariables,
+        $arCurrentValues = null,
+        $formName = '',
+        $popupWindow = null,
+        $siteId = ''
+    )
+    {
+        try
+        {
+            $runtime = CBPRuntime::GetRuntime();
+            $documentService = $runtime->GetDocumentService();
+
+            $currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName(
+                $arWorkflowTemplate, $activityName
+            );
+
+            if (!is_array($arCurrentValues))
+            {
+                $arCurrentValues = is_array($currentActivity) ? ($currentActivity['Properties'] ?? []) : [];
+            }
+
+            $requestedInformation = [];
+            if (!empty($currentActivity['Properties']['RequestedInformation']))
+            {
+                foreach ((array)$currentActivity['Properties']['RequestedInformation'] as $variable)
+                {
+                    if (($variable['Name'] ?? '') === '') { continue; }
+                    $variable['Required'] = CBPHelper::getBool($variable['Required'] ?? '') ? 'Y' : 'N';
+                    $variable['Multiple'] = CBPHelper::getBool($variable['Multiple'] ?? '') ? 'Y' : 'N';
+                    $requestedInformation[] = $variable;
+                }
+            }
+
+            $arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
+            unset($arFieldTypes['N:Sequence'], $arFieldTypes['UF:resourcebooking']);
+
+            $arDocumentFields  = $documentService->GetDocumentFields($documentType);
+            $javascriptFunctions = $documentService->GetJSFunctionsForFields(
+                $documentType,
+                'objFields',
+                $arDocumentFields,
+                $arFieldTypes
+            );
+
+            $dialog = null; // Signal to properties_dialog.php: legacy mode
+
+            ob_start();
+            /** @noinspection PhpIncludeInspection */
+            include __DIR__ . '/properties_dialog.php';
+            return ob_get_clean();
+        }
+        catch (\Throwable $e)
+        {
+            if (ob_get_level() > 0) { ob_end_clean(); }
+            return '<tr><td colspan="2" style="color:red;padding:10px;font-family:monospace;">'
+                . '<b>BPRIDC Legacy Dialog Error:</b><br>'
+                . htmlspecialchars($e->getMessage()) . '<br>'
+                . '<small>' . htmlspecialchars($e->getFile()) . ':' . $e->getLine() . '</small><br><br>'
+                . '<pre style="font-size:11px;overflow:auto;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>'
+                . '</td></tr>';
+        }
+    }
 
     private static function extractDepRules(array $arTask): array
     {

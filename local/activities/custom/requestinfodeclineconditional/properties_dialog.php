@@ -434,7 +434,7 @@ function BPRIDCRefreshDependValue(triggerFieldName, preselect) {
 </script>
 
 <?php
-/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog|null $dialog */
 
 $renderName = function ($field) {
     return isset($field['Required']) && $field['Required']
@@ -442,15 +442,19 @@ $renderName = function ($field) {
         : htmlspecialcharsbx($field['Name']) . ':';
 };
 
-$renderField = function (array $field, bool $allowSelection) use ($dialog) {
-    $fieldType = $dialog->getFieldTypeObject($field);
-    return $fieldType->renderControl(
-        ['Form' => $dialog->getFormName(), 'Field' => $field['FieldName']],
-        $dialog->getCurrentValue($field['FieldName']),
-        $allowSelection,
-        0
-    );
-};
+// $renderField requires the PropertiesDialog object — only available in new Bitrix API
+if ($dialog !== null)
+{
+    $renderField = function (array $field, bool $allowSelection) use ($dialog) {
+        $fieldType = $dialog->getFieldTypeObject($field);
+        return $fieldType->renderControl(
+            ['Form' => $dialog->getFormName(), 'Field' => $field['FieldName']],
+            $dialog->getCurrentValue($field['FieldName']),
+            $allowSelection,
+            0
+        );
+    };
+}
 ?>
 
 <!-- ============================================================
@@ -459,25 +463,37 @@ $renderField = function (array $field, bool $allowSelection) use ($dialog) {
 <tr id="ria_pd_list_form">
     <td colspan="2">
         <table width="100%" class="adm-detail-content-table edit-table">
-            <?php foreach ($dialog->getMap() as $fieldId => $field): ?>
-                <?php
-                if ($fieldId === 'TimeoutDurationType') { continue; }
-                if (!empty($field['Settings']['Hidden'])) { continue; }
-                ?>
+            <?php if ($dialog !== null): ?>
+                <?php foreach ($dialog->getMap() as $fieldId => $field): ?>
+                    <?php
+                    if ($fieldId === 'TimeoutDurationType') { continue; }
+                    if (!empty($field['Settings']['Hidden'])) { continue; }
+                    ?>
+                    <tr>
+                        <td align="right" width="40%" class="adm-detail-content-cell-l"><?= $renderName($field) ?></td>
+                        <td width="60%" class="adm-detail-content-cell-r">
+                            <?php
+                            echo $renderField($field, true);
+                            if ($fieldId === 'TimeoutDuration')
+                            {
+                                echo $renderField($dialog->getMap()['TimeoutDurationType'], false);
+                                if (method_exists('\CBPViewHelper', 'renderDelayLimitsInfo'))
+                                {
+                                    echo \CBPViewHelper::renderDelayLimitsInfo();
+                                }
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <tr>
-                    <td align="right" width="40%" class="adm-detail-content-cell-l"><?= $renderName($field) ?></td>
-                    <td width="60%" class="adm-detail-content-cell-r">
-                        <?php
-                        echo $renderField($field, true);
-                        if ($fieldId === 'TimeoutDuration')
-                        {
-                            echo $renderField($dialog->getMap()['TimeoutDurationType'], false);
-                            echo \CBPViewHelper::renderDelayLimitsInfo();
-                        }
-                        ?>
+                    <td colspan="2" style="padding:6px 0; color:#888; font-style:italic; font-size:12px;">
+                        Настройки исполнителя, темы и таймаута недоступны в диалоге на этой версии Битрикс24.
+                        Настройте их на актуальном портале.
                     </td>
                 </tr>
-            <?php endforeach; ?>
+            <?php endif; ?>
             <tr>
                 <td colspan="2"><br><b><?= GetMessage('BPSFA_PD_FIELDS') ?></b><br><br></td>
             </tr>
